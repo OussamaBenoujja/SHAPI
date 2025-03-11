@@ -1,0 +1,54 @@
+
+
+
+curl -X POST http://localhost:8000/login -H "Accept: application/json" -H "Content-Type: application/json" -d "{\"email\":\"your-email@example.com\",\"password\":\"your-password\"}" -c cookies.txt
+curl -X POST http://localhost:8000/api/v1/products -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"name\":\"Organic Bananas\",\"description\":\"Fresh organic bananas from Ecuador\",\"price\":3.99,\"stock_quantity\":100,\"min_stock_threshold\":20,\"category\":\"Fruits\",\"is_promotional\":false,\"department_id\":1}"
+
+Public Endpoints
+1. List all departments:
+curl -X GET http://localhost:8000/api/v1/departments -H "Accept: application/json"
+2. Get a specific department (replace 1 with actual ID):
+curl -X GET http://localhost:8000/api/v1/departments/1 -H "Accept: application/json"
+3. List all products:
+curl -X GET http://localhost:8000/api/v1/products -H "Accept: application/json"
+4. Get a specific product (replace 1 with actual ID):
+curl -X GET http://localhost:8000/api/v1/products/1 -H "Accept: application/json"
+5. List products in a specific department:
+curl -X GET http://localhost:8000/api/v1/departments/1/products -H "Accept: application/json"
+6. List promotional products:
+curl -X GET http://localhost:8000/api/v1/products/promotional -H "Accept: application/json"
+7. Search products by name:
+curl -X GET http://localhost:8000/api/v1/products?search=banana -H "Accept: application/json"
+8. Filter products by category:
+curl -X GET http://localhost:8000/api/v1/products?category=Fruits -H "Accept: application/json"
+Authentication
+9. Register a new user:
+curl -X POST http://localhost:8000/register -H "Accept: application/json" -H "Content-Type: application/json" -d "{\"name\":\"Test User\",\"email\":\"test@example.com\",\"password\":\"password\",\"password_confirmation\":\"password\"}"
+10. Login (save cookies for session):
+curl -X POST http://localhost:8000/login -H "Accept: application/json" -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"password\":\"password\"}" -c cookies.txt
+11. Get current authenticated user:
+curl -X GET http://localhost:8000/api/v1/user -H "Accept: application/json" -b cookies.txt
+Department Management (Protected)
+12. Create a department:
+curl -X POST http://localhost:8000/api/v1/departments -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"name\":\"Electronics\",\"description\":\"Electronic devices and accessories\"}"
+13. Update a department:
+curl -X PUT http://localhost:8000/api/v1/departments/1 -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"name\":\"Electronics and Gadgets\",\"description\":\"Updated description\"}"
+14. Delete a department:
+curl -X DELETE http://localhost:8000/api/v1/departments/1 -H "Accept: application/json" -b cookies.txt
+Product Management (Protected)
+15. Create a product:
+curl -X POST http://localhost:8000/api/v1/products -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"name\":\"Smartphone\",\"description\":\"Latest model smartphone\",\"price\":699.99,\"stock_quantity\":50,\"min_stock_threshold\":10,\"category\":\"Phones\",\"is_promotional\":true,\"department_id\":1}"
+16. Update a product:
+curl -X PUT http://localhost:8000/api/v1/products/1 -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"name\":\"Smartphone Pro\",\"price\":899.99}"
+17. Delete a product:
+curl -X DELETE http://localhost:8000/api/v1/products/1 -H "Accept: application/json" -b cookies.txt
+Stock Management (Protected)
+18. Update product stock:
+curl -X PUT http://localhost:8000/api/v1/stock/1 -H "Accept: application/json" -H "Content-Type: application/json" -b cookies.txt -d "{\"quantity\":45}"
+19. View critical stock:
+curl -X GET http://localhost:8000/api/v1/stock/critical -H "Accept: application/json" -b cookies.txt
+20. View stock statistics:
+curl -X GET http://localhost:8000/api/v1/stock/statistics -H "Accept: application/json" -b cookies.txt
+Session Management
+21. Logout:
+curl -X POST http://localhost:8000/logout -H "Accept: application/json" -b cookies.txt

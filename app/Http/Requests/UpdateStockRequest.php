@@ -6,12 +6,10 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateStockRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
+
     public function authorize(): bool
     {
-        return false;
+        return true; // Authorization will be handled by middleware
     }
 
     /**
@@ -22,7 +20,7 @@ class UpdateStockRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'quantity' => 'required|integer|min:0',
         ];
     }
 }

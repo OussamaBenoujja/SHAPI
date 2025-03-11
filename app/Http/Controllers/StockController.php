@@ -21,13 +21,10 @@ class StockController extends Controller
         ]);
     }
 
-   
     public function updateStock(Request $request, Product $product): JsonResponse
     {
-        $validated = $request->validate([
-            'quantity' => 'required|integer',
-        ]);
-
+        $validated = $request->validated();
+    
         $oldQuantity = $product->stock_quantity;
         $product->stock_quantity = $validated['quantity'];
         $product->save();
@@ -47,7 +44,49 @@ class StockController extends Controller
         ]);
     }
 
-    
+    /**
+ * @OA\Get(
+ *     path="/v1/stock/statistics",
+ *     summary="Get stock statistics",
+ *     tags={"Stock"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Response(
+ *         response=200,
+ *         description="Stock statistics",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @OA\Property(property="out_of_stock_count", type="integer", example=5),
+ *                 @OA\Property(property="critical_stock_count", type="integer", example=12),
+ *                 @OA\Property(
+ *                     property="department_average_stock",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="department", type="string", example="Electronics"),
+ *                         @OA\Property(property="average_stock", type="number", format="float", example=45.5)
+ *                     )
+ *                 ),
+ *                 @OA\Property(
+ *                     property="department_product_counts",
+ *                     type="array",
+ *                     @OA\Items(
+ *                         type="object",
+ *                         @OA\Property(property="department", type="string", example="Electronics"),
+ *                         @OA\Property(property="total_products", type="integer", example=25)
+ *                     )
+ *                 )
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     )
+ * )
+ */
     public function statistics(): JsonResponse
     {
        

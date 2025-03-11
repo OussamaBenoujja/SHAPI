@@ -9,9 +9,69 @@ use Illuminate\Support\Str;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Validation\ValidationException;
 
+
 class ProductController extends Controller
 {
     
+/**
+ * @OA\Get(
+ *     path="/v1/products",
+ *     summary="Get all products with optional filtering",
+ *     tags={"Products"},
+ *     @OA\Parameter(
+ *         name="department_id",
+ *         in="query",
+ *         required=false,
+ *         description="Filter by department ID",
+ *         
+ *     ),
+ *     @OA\Parameter(
+ *         name="category",
+ *         in="query",
+ *         required=false,
+ *         description="Filter by category",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Parameter(
+ *         name="promotional",
+ *         in="query",
+ *         required=false,
+ *         description="Filter promotional products",
+ *         @OA\Schema(type="boolean")
+ *     ),
+ *     @OA\Parameter(
+ *         name="search",
+ *         in="query",
+ *         required=false,
+ *         description="Search by product name",
+ *         @OA\Schema(type="string")
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="List of products",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="array",
+ *                 @OA\Items(
+ *                     type="object",
+ *                     @OA\Property(property="id", type="integer", example=1),
+ *                     @OA\Property(property="name", type="string", example="Smartphone"),
+ *                     @OA\Property(property="description", type="string", example="Latest model smartphone"),
+ *                     @OA\Property(property="price", type="number", format="float", example=699.99),
+ *                     @OA\Property(property="stock_quantity", type="integer", example=50),
+ *                     @OA\Property(property="min_stock_threshold", type="integer", example=10),
+ *                     @OA\Property(property="slug", type="string", example="smartphone"),
+ *                     @OA\Property(property="category", type="string", example="Phones"),
+ *                     @OA\Property(property="is_promotional", type="boolean", example=true),
+ *                     @OA\Property(property="department_id", type="integer", example=1)
+ *                 )
+ *             )
+ *         )
+ *     )
+ * )
+ */
     public function index(Request $request): JsonResponse
     {
         $query = Product::query();
@@ -43,11 +103,60 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created product in storage.
-     * 
-     * @throws ValidationException
-     */
+/**
+ * @OA\Post(
+ *     path="/v1/products",
+ *     summary="Create a new product",
+ *     tags={"Products"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         @OA\JsonContent(
+ *             required={"name", "price", "stock_quantity", "min_stock_threshold", "department_id"},
+ *             @OA\Property(property="name", type="string", example="Smartphone"),
+ *             @OA\Property(property="description", type="string", example="Latest model smartphone"),
+ *             @OA\Property(property="price", type="number", format="float", example=699.99),
+ *             @OA\Property(property="stock_quantity", type="integer", example=50),
+ *             @OA\Property(property="min_stock_threshold", type="integer", example=10),
+ *             @OA\Property(property="category", type="string", example="Phones"),
+ *             @OA\Property(property="is_promotional", type="boolean", example=true),
+ *             @OA\Property(property="department_id", type="integer", example=1)
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Product created successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="Product created successfully"),
+ *             @OA\Property(
+ *                 property="data",
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", example=1),
+ *                 @OA\Property(property="name", type="string", example="Smartphone"),
+ *                 @OA\Property(property="description", type="string", example="Latest model smartphone"),
+ *                 @OA\Property(property="price", type="number", format="float", example=699.99),
+ *                 @OA\Property(property="stock_quantity", type="integer", example=50),
+ *                 @OA\Property(property="min_stock_threshold", type="integer", example=10),
+ *                 @OA\Property(property="slug", type="string", example="smartphone"),
+ *                 @OA\Property(property="category", type="string", example="Phones"),
+ *                 @OA\Property(property="is_promotional", type="boolean", example=true),
+ *                 @OA\Property(property="department_id", type="integer", example=1),
+ *                 @OA\Property(property="created_at", type="string", format="date-time"),
+ *                 @OA\Property(property="updated_at", type="string", format="date-time")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Validation errors"
+ *     )
+ * )
+ */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -74,7 +183,25 @@ class ProductController extends Controller
         ], 201);
     }
 
-
+/**
+ * @OA\Get(
+ *     path="/v1/products/{product}",
+ *     summary="Get product details",
+ *     tags={"Products"},
+ *     @OA\Parameter(
+ *         name="product",
+ *         in="path",
+ *         required=true,
+ *         description="Product ID",
+ *         
+ *     ),
+ *
+ *     @OA\Response(
+ *         response=404,
+ *         description="Product not found"
+ *     )
+ * )
+ */
     public function show(Product $product): JsonResponse
     {
         return response()->json([
@@ -83,10 +210,33 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified product in storage.
-     * 
-     * @throws ValidationException
-     */
+ * @OA\Put(
+ *     path="/v1/products/{product}",
+ *     summary="Update a product",
+ *     tags={"Products"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="product",
+ *         in="path",
+ *         required=true,
+ *         description="Product ID",
+ *         
+ *     ),
+ *
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Product not found"
+ *     ),
+ *     @OA\Response(
+ *         response=422,
+ *         description="Validation errors"
+ *     )
+ * )
+ */
     public function update(Request $request, Product $product): JsonResponse
     {
         $validated = $request->validate([
@@ -115,7 +265,37 @@ class ProductController extends Controller
         ]);
     }
 
-
+/**
+ * @OA\Delete(
+ *     path="/v1/products/{product}",
+ *     summary="Delete a product",
+ *     tags={"Products"},
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(
+ *         name="product",
+ *         in="path",
+ *         required=true,
+ *         description="Product ID",
+ *         
+ *     ),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Product deleted successfully",
+ *         @OA\JsonContent(
+ *             type="object",
+ *             @OA\Property(property="message", type="string", example="Product deleted successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=401,
+ *         description="Unauthenticated"
+ *     ),
+ *     @OA\Response(
+ *         response=404,
+ *         description="Product not found"
+ *     )
+ * )
+ */
     public function destroy(Product $product): JsonResponse
     {
         $product->delete();
@@ -125,7 +305,25 @@ class ProductController extends Controller
         ]);
     }
 
-
+/**
+ * @OA\Get(
+ *     path="/v1/departments/{department}/products",
+ *     summary="Get products for a specific department",
+ *     tags={"Products"},
+ *     @OA\Parameter(
+ *         name="department",
+ *         in="path",
+ *         required=true,
+ *         description="Department ID",
+ *         
+ *     ),
+ *   
+ *     @OA\Response(
+ *         response=404,
+ *         description="Department not found"
+ *     )
+ * )
+ */
     public function departmentProducts(Department $department): JsonResponse
     {
         $products = $department->products;
@@ -152,9 +350,7 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Check if product stock is below threshold.
-     */
+   
     private function checkStockThreshold(Product $product): void
     {
         if ($product->stock_quantity <= $product->min_stock_threshold) {

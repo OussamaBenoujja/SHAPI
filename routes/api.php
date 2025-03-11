@@ -14,7 +14,7 @@ use App\Http\Controllers\StockController;
 
 // Public routes
 Route::prefix('v1')->group(function () {
-
+   
     // Department public routes
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{department}', [DepartmentController::class, 'show']);
@@ -28,11 +28,12 @@ Route::prefix('v1')->group(function () {
 
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
+
     // User info
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
+    
     // Department management (admin only)
     Route::post('/departments', [DepartmentController::class, 'store']);
     Route::put('/departments/{department}', [DepartmentController::class, 'update']);
