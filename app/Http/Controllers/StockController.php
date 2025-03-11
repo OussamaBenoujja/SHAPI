@@ -10,10 +10,26 @@ use Illuminate\Support\Facades\DB;
 class StockController extends Controller
 {
   
+    <?php
+
+namespace App\Http\Controllers;
+
+use App\Jobs\SendCriticalStockNotification;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
+class StockController extends Controller
+{
+    /**
+     * List critical stock products
+     */
     public function criticalStock(): JsonResponse
     {
-        $criticalProducts = Product::whereRaw('stock_quantity <= min_stock_threshold')
-            ->with('department')
+        $criticalProducts = Product::with('department')
+            ->whereRaw('stock_quantity <= min_stock_threshold')
+            ->where('stock_quantity', '>', 0)
             ->get();
 
         return response()->json([
@@ -21,6 +37,9 @@ class StockController extends Controller
         ]);
     }
 
+    /**
+     * Update stock for a product
+     */
     public function updateStock(Request $request, Product $product): JsonResponse
     {
         $validated = $request->validated();
@@ -29,10 +48,10 @@ class StockController extends Controller
         $product->stock_quantity = $validated['quantity'];
         $product->save();
 
-        
-        if ($product->stock_quantity <= $product->min_stock_threshold) {
-            \Log::warning("Product ID {$product->id} ({$product->name}) has low stock: {$product->stock_quantity}");
-        }
+        // Trigger critical stock notification job
+        SendCriticalStockNotification::dispatch()
+            ->onQueue('notifications')
+            ->delay(now()->addMinutes(5)); // Optional slight delay
 
         return response()->json([
             'message' => 'Stock updated successfully',
@@ -43,6 +62,10 @@ class StockController extends Controller
             ]
         ]);
     }
+
+   
+
+}
 
     /**
  * @OA\Get(
@@ -87,37 +110,38 @@ class StockController extends Controller
  *     )
  * )
  */
-    public function statistics(): JsonResponse
-    {
-       
-        $outOfStock = Product::where('stock_quantity', 0)->count();
+public function statistics(): JsonResponse
+{
+    
+    $outOfStock = Product::where('stock_quantity', 0)->count();
 
-        
-        $criticalStock = Product::whereRaw('stock_quantity <= min_stock_threshold')
-            ->where('stock_quantity', '>', 0)
-            ->count();
+    
+    $criticalStock = Product::whereRaw('stock_quantity <= min_stock_threshold')
+        ->where('stock_quantity', '>', 0)
+        ->count();
 
-       
-        $departmentAvgStock = DB::table('products')
-            ->select('departments.name as department', DB::raw('AVG(stock_quantity) as average_stock'))
-            ->join('departments', 'products.department_id', '=', 'departments.id')
-            ->groupBy('departments.name')
-            ->get();
+   
+    $departmentAvgStock = DB::table('products')
+        ->select('departments.name as department', DB::raw('AVG(stock_quantity) as average_stock'))
+        ->join('departments', 'products.department_id', '=', 'departments.id')
+        ->groupBy('departments.name')
+        ->get();
 
-        
-        $departmentTotalProducts = DB::table('products')
-            ->select('departments.name as department', DB::raw('COUNT(*) as total_products'))
-            ->join('departments', 'products.department_id', '=', 'departments.id')
-            ->groupBy('departments.name')
-            ->get();
+    
+    $departmentTotalProducts = DB::table('products')
+        ->select('departments.name as department', DB::raw('COUNT(*) as total_products'))
+        ->join('departments', 'products.department_id', '=', 'departments.id')
+        ->groupBy('departments.name')
+        ->get();
 
-        return response()->json([
-            'data' => [
-                'out_of_stock_count' => $outOfStock,
-                'critical_stock_count' => $criticalStock,
-                'department_average_stock' => $departmentAvgStock,
-                'department_product_counts' => $departmentTotalProducts,
-            ]
-        ]);
-    }
+    return response()->json([
+        'data' => [
+            'out_of_stock_count' => $outOfStock,
+            'critical_stock_count' => $criticalStock,
+            'department_average_stock' => $departmentAvgStock,
+            'department_product_counts' => $departmentTotalProducts,
+        ]
+    ]);
+}
+}
 }

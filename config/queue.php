@@ -78,6 +78,12 @@ return [
         'retry_after' => 90,
         'after_commit' => true,
     ],
+    'notifications' => [
+        'driver' => 'database',
+        'table' => 'jobs',
+        'queue' => 'notifications',
+        'retry_after' => 90,
+    ],
 
     ],
 

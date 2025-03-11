@@ -15,11 +15,11 @@ use App\Http\Controllers\StockController;
 // Public routes
 Route::prefix('v1')->group(function () {
    
-    // Department public routes
+    
     Route::get('/departments', [DepartmentController::class, 'index']);
     Route::get('/departments/{department}', [DepartmentController::class, 'show']);
     
-    // Product public routes
+    
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{product}', [ProductController::class, 'show']);
     Route::get('/departments/{department}/products', [ProductController::class, 'departmentProducts']);
@@ -29,22 +29,22 @@ Route::prefix('v1')->group(function () {
 
 Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
-    // User info
+   
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    
-    // Department management (admin only)
+
+   
     Route::post('/departments', [DepartmentController::class, 'store']);
     Route::put('/departments/{department}', [DepartmentController::class, 'update']);
     Route::delete('/departments/{department}', [DepartmentController::class, 'destroy']);
     
-    // Product management (admin only)
+    
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
     
-    // Stock management
+   
     Route::get('/stock/critical', [StockController::class, 'criticalStock']);
     Route::put('/stock/{product}', [StockController::class, 'updateStock']);
     Route::get('/stock/statistics', [StockController::class, 'statistics']);
