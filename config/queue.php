@@ -71,6 +71,13 @@ return [
             'block_for' => null,
             'after_commit' => false,
         ],
+        'stock-updates' => [
+        'driver' => 'database',
+        'table' => 'jobs',
+        'queue' => 'stock-updates',
+        'retry_after' => 90,
+        'after_commit' => true,
+    ],
 
     ],
 
