@@ -48,4 +48,11 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::get('/stock/critical', [StockController::class, 'criticalStock']);
     Route::put('/stock/{product}', [StockController::class, 'updateStock']);
     Route::get('/stock/statistics', [StockController::class, 'statistics']);
+
 });
+
+    // Auth routes for API
+    Route::post('/register', [App\Http\Controllers\Auth\RegisteredUserController::class, 'store']);
+    Route::post('/login', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store']);
+    Route::post('/logout', [App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])
+        ->middleware('auth:sanctum');
