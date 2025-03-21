@@ -16,7 +16,7 @@ class ProductObserver
    
     public function updated(Product $product): void
     {
-        // Check if stock quantity was updated
+       
         if ($product->isDirty('stock_quantity')) {
             $this->checkStockLevel($product);
         }
